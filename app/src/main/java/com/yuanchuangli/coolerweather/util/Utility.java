@@ -2,9 +2,11 @@ package com.yuanchuangli.coolerweather.util;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.yuanchuangli.coolerweather.db.City;
 import com.yuanchuangli.coolerweather.db.County;
 import com.yuanchuangli.coolerweather.db.Province;
+import com.yuanchuangli.coolerweather.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,5 +98,23 @@ public class Utility {
 
         }
         return false;
+    }
+
+    /**
+     * 将返回的JSON数据解析成Weather实体类
+     *
+     * @param response
+     * @return
+     */
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent, Weather.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
