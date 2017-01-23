@@ -97,7 +97,7 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
         String bingPic = prefs.getString("bing_pic", null);
         final String weatherId;
@@ -109,16 +109,21 @@ public class WeatherActivity extends AppCompatActivity {
         if (weatherString != null) {
             Weather weather = Utility.handleWeatherResponse(weatherString);
             weatherId = weather.basic.weatherId;
+            Log.i(TAG, "非空" + weatherId);
             showWeatherInfo(weather);
         } else {
             //无缓存时去服务器查询天气
             weatherId = getIntent().getStringExtra("weather_id");
+            Log.i(TAG, "空" + weatherId);
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //String weatherId1 = getIntent().getStringExtra("weather_id");
+                String weatherId = prefs.getString("weatherId", null);
+                Log.i(TAG, "空" + weatherId);
                 requestWeather(weatherId);
             }
         });
@@ -148,11 +153,11 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     /**
-     * 根据天气id虎丘天气信息
+     * 根据天气id获取天气信息
      *
      * @param weatherId
      */
-    public void requestWeather(String weatherId) {
+    public void requestWeather(final String weatherId) {
         String weatherUrl = Constants.WEATHER_ADDRESS + "?cityid=" + weatherId + "&key=" + Constants.HEFENG_KEY;
         Log.i(TAG, weatherUrl);
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
@@ -176,6 +181,8 @@ public class WeatherActivity extends AppCompatActivity {
                     public void run() {
                         if (weather != null & "ok".equals(weather.status)) {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                            editor.putString("weather", responseText);
+                            editor.putString("weatherId", weatherId);
                             editor.apply();
                             showWeatherInfo(weather);
                         } else {
