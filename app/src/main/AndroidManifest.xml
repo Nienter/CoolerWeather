@@ -3,6 +3,7 @@
     package="com.yuanchuangli.coolerweather">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
@@ -20,6 +21,11 @@
         <activity
             android:name=".WeatherActivity"
             android:theme="@style/AppTheme" />
+
+        <service
+            android:name=".service.AutoUpdateService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
